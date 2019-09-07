@@ -23,5 +23,8 @@ export default {
       releaseReleaseTrain: false
     }
   }),
+  created () {
+    this.$vuetify.theme.dark = true
+  },
 };
 </script>
