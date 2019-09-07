@@ -3,7 +3,7 @@
         <v-row>
             <v-col cols="12">
                 <div class="text-center">
-                    <v-btn>Initiate Release Train</v-btn>
+                    <v-btn>Prepare Release Train</v-btn>
                 </div>
             </v-col>
         </v-row>
