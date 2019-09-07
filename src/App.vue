@@ -1,26 +1,26 @@
 <template>
   <v-app>
     <v-content>
-      <InitiateReleaseTrain v-if="show.initiateReleaseTrain" />
-      <ReleaseReleaseTrain v-if="show.releaseReleaseTrain" />
+      <PrepareReleaseTrain v-if="show.PrepareReleaseTrain" />
+      <DeployReleaseTrain v-if="show.DeployReleaseTrain" />
     </v-content>
   </v-app>
 </template>
 
 <script>
-import InitiateReleaseTrain from './components/InitiateReleaseTrain';
-import ReleaseReleaseTrain from './components/ReleaseReleaseTrain';
+import PrepareReleaseTrain from './components/PrepareReleaseTrain';
+import DeployReleaseTrain from './components/DeployReleaseTrain';
 
 export default {
   name: 'App',
   components: {
-    InitiateReleaseTrain,
-    ReleaseReleaseTrain
+    PrepareReleaseTrain,
+    DeployReleaseTrain
   },
   data: () => ({
     show: {
-      initiateReleaseTrain: true,
-      releaseReleaseTrain: false
+      PrepareReleaseTrain: true,
+      DeployReleaseTrain: false
     }
   }),
   created () {
