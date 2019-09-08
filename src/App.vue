@@ -1,5 +1,7 @@
 <template>
   <v-app>
+    <loading :active.sync="show.isLoading"
+             :can-cancel="false"></loading>
     <v-content>
       <v-container class="fill-height" fluid v-if="show.PrepareReleaseTrain">
         <v-row>
@@ -33,7 +35,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from 'axios'
+import Loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   name: 'App',
@@ -41,16 +45,21 @@ export default {
     show: {
       PrepareReleaseTrain: true,
       DeployReleaseTrain: false,
-      DeployToOverseasTerminals: false
+      DeployToOverseasTerminals: false,
+      isLoading: false,
     },
     apiBaseUri: 'http://127.0.0.1:3333/api/v1',
     repositories: [],
     repositoryPullRequests: {}
   }),
+  components: {
+    Loading
+  },
   created () {
     this.$vuetify.theme.dark = true
   },
   async mounted() {
+    this.show.isLoading = true
     const response = await this.getRepositories(this.apiBaseUri)
     this.repositories = response.data.data
 
@@ -70,11 +79,14 @@ export default {
       return axios.patch(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests/${pullRequestId}`)
     },
     checkForPullRequests: async function () {
+      this.show.isLoading = true
       for (let repository of this.repositories) {
         const response = await this.getReleaseTrainPullRequests(this.apiBaseUri, repository.slug)
 
         if (response.data.data) {
           this.repositoryPullRequests[repository.slug] = response.data.data
+        } else {
+          delete this.repositoryPullRequests[repository.slug]
         }
       }
 
@@ -83,8 +95,10 @@ export default {
       } else {
         this.showPrepareReleaseTrain()
       }
+      this.show.isLoading = false
     },
     prepareReleaseTrain: async function () {
+      this.show.isLoading = true
       for (let repository of this.repositories) {
         try {
           await this.createReleaseTrainPullRequest(this.apiBaseUri, repository.slug)
@@ -94,13 +108,15 @@ export default {
         }
       }
 
-      this.checkForPullRequests()
+      await this.checkForPullRequests()
+      this.show.isLoading = false
     },
     deployReleaseTrain: function () {
       if (!confirm('Are you sure you want to deploy the release train?')) {
-        return;
+        return
       }
 
+      this.show.isLoading = true
       const promises = []
 
       for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
@@ -111,7 +127,8 @@ export default {
 
       Promise.all(promises).then(() => {
         this.showPrepareReleaseTrain()
-      });
+        this.show.isLoading = false
+      })
     },
     hideAll: function () {
       for (let componentName of Object.keys(this.show)) {
@@ -127,5 +144,5 @@ export default {
       this.show.DeployReleaseTrain = true
     }
   }
-};
+}
 </script>
