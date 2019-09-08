@@ -2,6 +2,34 @@
   <v-app>
     <loading :active.sync="show.isLoading"
              :can-cancel="false"></loading>
+    <v-dialog
+            v-model="show.deployReleaseTrainConfirmationDialog"
+            max-width="290"
+    >
+      <v-card>
+        <v-card-title class="headline">Are you sure you want to do this?</v-card-title>
+
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+
+          <v-btn
+                  color="green darken-1"
+                  text
+                  @click="() => { this.show.deployReleaseTrainConfirmationDialog = false }"
+          >
+            No
+          </v-btn>
+
+          <v-btn
+                  color="green darken-1"
+                  text
+                  @click="() => {this.show.deployReleaseTrainConfirmationDialog = false; deployReleaseTrain() }"
+          >
+            Yes
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-content>
       <v-container class="fill-height" fluid v-if="show.PrepareReleaseTrain">
         <v-row>
@@ -16,7 +44,7 @@
         <v-row>
           <v-col cols="12">
             <div class="text-center">
-              <v-btn @click="deployReleaseTrain()" x-large color="error">Deploy Release Train</v-btn>
+              <v-btn @click="() => {this.show.deployReleaseTrainConfirmationDialog = true}" x-large color="error">Deploy Release Train</v-btn>
             </div>
           </v-col>
         </v-row>
@@ -47,6 +75,7 @@ export default {
       DeployReleaseTrain: false,
       DeployToOverseasTerminals: false,
       isLoading: false,
+      deployReleaseTrainConfirmationDialog: false
     },
     apiBaseUri: 'http://127.0.0.1:3333/api/v1',
     repositories: [],
@@ -112,10 +141,6 @@ export default {
       this.show.isLoading = false
     },
     deployReleaseTrain: function () {
-      if (!confirm('Are you sure you want to deploy the release train?')) {
-        return
-      }
-
       this.show.isLoading = true
       const promises = []
 
