@@ -5,7 +5,7 @@
         <v-row>
           <v-col cols="12">
             <div class="text-center">
-              <v-btn>Prepare Release Train</v-btn>
+              <v-btn @click="prepareReleaseTrain()">Prepare Release Train</v-btn>
             </div>
           </v-col>
         </v-row>
@@ -63,6 +63,9 @@ export default {
     getReleaseTrainPullRequests: async (apiBaseUri, repoSlug) => {
       return axios.get(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`)
     },
+    createReleaseTrainPullRequest: async (apiBaseUri, repoSlug) => {
+      return axios.post(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`)
+    },
     deployReleaseTrainPullRequest: async (apiBaseUri, repoSlug, pullRequestId) => {
       return axios.patch(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests/${pullRequestId}`)
     },
@@ -80,6 +83,18 @@ export default {
       } else {
         this.showPrepareReleaseTrain()
       }
+    },
+    prepareReleaseTrain: async function () {
+      for (let repository of this.repositories) {
+        try {
+          await this.createReleaseTrainPullRequest(this.apiBaseUri, repository.slug)
+        } catch (err) {
+          // Just ignore if the PR could not be created.
+          // TODO: Read the payload and check that it failed because there were no changes to be pulled
+        }
+      }
+
+      this.checkForPullRequests()
     },
     deployReleaseTrain: function () {
       if (!confirm('Are you sure you want to deploy the release train?')) {
