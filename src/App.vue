@@ -7,7 +7,7 @@
         <v-row>
           <v-col cols="12">
             <div class="text-center">
-              <v-btn @click="prepareReleaseTrain()">Prepare Release Train</v-btn>
+              <v-btn @click="prepareReleaseTrain()" x-large color="warning" >Prepare Release Train</v-btn>
             </div>
           </v-col>
         </v-row>
@@ -16,7 +16,7 @@
         <v-row>
           <v-col cols="12">
             <div class="text-center">
-              <v-btn @click="deployReleaseTrain()">Deploy Release Train</v-btn>
+              <v-btn @click="deployReleaseTrain()" x-large color="error">Deploy Release Train</v-btn>
             </div>
           </v-col>
         </v-row>
