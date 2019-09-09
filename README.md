@@ -1,4 +1,6 @@
-# release-train-conductor-frontend
+# Release Train Conductor - Frontend
+
+A quick and dirty front end for: https://github.com/rubenfunai-whispli/spike_release-train-conductor-api
 
 ## Project setup
 ```
