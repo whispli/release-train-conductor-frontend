@@ -1,74 +1,109 @@
 <template>
-  <v-app>
-    <loading :active.sync="show.isLoading"
-             :can-cancel="false"></loading>
-    <v-dialog
-            v-model="show.deployReleaseTrainConfirmationDialog"
-            max-width="290"
-    >
-      <v-card>
-        <v-card-title class="headline">Are you sure you want to do this?</v-card-title>
+  <VApp>
+    <Loading :active.sync="show.isLoading" :can-cancel="false" />
+    <VDialog
+      v-model="show.deployReleaseTrainConfirmationDialog"
+      max-width="290">
+      <VCard>
+        <VCardTitle class="headline">
+          Are you sure you want to do this?
+        </VCardTitle>
 
-        <v-card-actions>
-          <div class="flex-grow-1"></div>
+        <VCardActions>
+          <div class="flex-grow-1" />
 
-          <v-btn
-                  color="green darken-1"
-                  text
-                  @click="() => { this.show.deployReleaseTrainConfirmationDialog = false }"
-          >
+          <VBtn
+            color="green darken-1"
+            text
+            @click="show.deployReleaseTrainConfirmationDialog = false">
             No
-          </v-btn>
+          </VBtn>
 
-          <v-btn
-                  color="green darken-1"
-                  text
-                  @click="() => {this.show.deployReleaseTrainConfirmationDialog = false; deployReleaseTrain() }"
-          >
+          <VBtn
+            color="green darken-1"
+            text
+            @click="
+              () => {
+                this.show.deployReleaseTrainConfirmationDialog = false;
+                deployReleaseTrain();
+              }
+            ">
             Yes
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-content>
-      <v-container class="fill-height" fluid v-if="show.PrepareReleaseTrain">
-        <v-row>
-          <v-col cols="12">
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+    <VContent>
+      <VContainer
+        v-if="show.PrepareReleaseTrain"
+        class="fill-height"
+        fluid>
+        <VRow>
+          <VCol cols="12">
             <div class="text-center">
-              <v-btn @click="prepareReleaseTrain()" x-large color="warning" >Prepare Release Train</v-btn>
+              <VBtn
+                color="warning"
+                x-large
+                @click="prepareReleaseTrain">
+                Prepare Release Train
+              </VBtn>
             </div>
-          </v-col>
-        </v-row>
-      </v-container>
-      <v-container class="fill-height" fluid v-if="show.DeployReleaseTrain">
-        <v-row>
-          <v-col cols="12">
+          </VCol>
+        </VRow>
+      </VContainer>
+      <VContainer
+        v-if="show.DeployReleaseTrain"
+        class="fill-height"
+        fluid>
+        <VRow>
+          <VCol cols="12">
             <div class="text-center">
-              <v-btn @click="() => {this.show.deployReleaseTrainConfirmationDialog = true}" x-large color="error">Deploy Release Train</v-btn>
+              <VBtn
+                color="error"
+                x-large
+                @click="show.deployReleaseTrainConfirmationDialog = true">
+                Deploy Release Train
+              </VBtn>
             </div>
-          </v-col>
-        </v-row>
-      </v-container>
-      <v-container class="fill-height" fluid v-if="show.PrepareReleasePlane">
-        <v-row>
-          <v-col cols="12">
+          </VCol>
+        </VRow>
+      </VContainer>
+      <VContainer
+        v-if="show.PrepareReleasePlane"
+        class="fill-height"
+        fluid>
+        <VRow>
+          <VCol cols="12">
             <div class="text-center">
-              <v-btn @click="prepareReleasePlane()" x-large color="success" >Prepare Release Plane</v-btn>
+              <VBtn
+                color="success"
+                x-large
+                @click="prepareReleasePlane">
+                Prepare Release Plane
+              </VBtn>
             </div>
-          </v-col>
-        </v-row>
-      </v-container>
-      <v-container class="fill-height" fluid v-if="show.DeployReleasePlane">
-        <v-row>
-          <v-col cols="12">
+          </VCol>
+        </VRow>
+      </VContainer>
+      <VContainer
+        v-if="show.DeployReleasePlane"
+        class="fill-height"
+        fluid>
+        <VRow>
+          <VCol cols="12">
             <div class="text-center">
-              <v-btn @click="deployReleasePlane()" x-large color="info">Deploy Release Plane</v-btn>
+              <VBtn
+                color="info"
+                x-large
+                @click="deployReleasePlane">
+                Deploy Release Plane
+              </VBtn>
             </div>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-content>
-  </v-app>
+          </VCol>
+        </VRow>
+      </VContainer>
+    </VContent>
+  </VApp>
 </template>
 
 <script>
@@ -78,6 +113,7 @@ import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
   name: 'App',
+  components: { Loading },
   data: () => ({
     show: {
       PrepareReleaseTrain: true,
@@ -86,16 +122,13 @@ export default {
       DeployReleasePlane: false,
       DeployToOverseasTerminals: false,
       isLoading: false,
-      deployReleaseTrainConfirmationDialog: false
+      deployReleaseTrainConfirmationDialog: false,
     },
     apiBaseUri: 'https://whispli-deployment-button.herokuapp.com/api/v1',
     repositories: [],
-    repositoryPullRequests: {}
+    repositoryPullRequests: {},
   }),
-  components: {
-    Loading
-  },
-  created () {
+  created() {
     this.$vuetify.theme.dark = true
   },
   async mounted() {
@@ -106,31 +139,56 @@ export default {
     this.checkForPullRequests()
   },
   methods: {
-    getRepositories: async (apiBaseUri) => {
+    getRepositories: async apiBaseUri => {
       return axios.get(apiBaseUri + '/repositories')
     },
     getReleaseTrainPullRequests: async (apiBaseUri, repoSlug) => {
-      return axios.get(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`)
+      return axios.get(
+        apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`,
+      )
     },
     createReleaseTrainPullRequest: async (apiBaseUri, repoSlug) => {
-      return axios.post(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`)
+      return axios.post(
+        apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`,
+      )
     },
-    deployReleaseTrainPullRequest: async (apiBaseUri, repoSlug, pullRequestId) => {
-      return axios.patch(apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests/${pullRequestId}`)
+    deployReleaseTrainPullRequest: async (
+      apiBaseUri,
+      repoSlug,
+      pullRequestId,
+    ) => {
+      return axios.patch(
+        apiBaseUri +
+          `/repositories/${repoSlug}/release-train-pull-requests/${pullRequestId}`,
+      )
     },
     getReleasePlanePullRequests: async (apiBaseUri, repoSlug) => {
-      return axios.get(apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`)
+      return axios.get(
+        apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`,
+      )
     },
     createReleasePlanePullRequest: async (apiBaseUri, repoSlug) => {
-      return axios.post(apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`)
+      return axios.post(
+        apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`,
+      )
     },
-    deployReleasePlanePullRequest: async (apiBaseUri, repoSlug, pullRequestId) => {
-      return axios.patch(apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests/${pullRequestId}`)
+    deployReleasePlanePullRequest: async (
+      apiBaseUri,
+      repoSlug,
+      pullRequestId,
+    ) => {
+      return axios.patch(
+        apiBaseUri +
+          `/repositories/${repoSlug}/release-plane-pull-requests/${pullRequestId}`,
+      )
     },
-    checkForPullRequests: async function () {
+    checkForPullRequests: async function() {
       this.show.isLoading = true
       for (let repository of this.repositories) {
-        const response = await this.getReleaseTrainPullRequests(this.apiBaseUri, repository.slug)
+        const response = await this.getReleaseTrainPullRequests(
+          this.apiBaseUri,
+          repository.slug,
+        )
 
         if (response.data.data) {
           this.repositoryPullRequests[repository.slug] = response.data.data
@@ -147,10 +205,13 @@ export default {
       }
       this.show.isLoading = false
     },
-    checkForReleasePlanePullRequests: async function () {
+    checkForReleasePlanePullRequests: async function() {
       this.show.isLoading = true
       for (let repository of this.repositories) {
-        const response = await this.getReleasePlanePullRequests(this.apiBaseUri, repository.slug)
+        const response = await this.getReleasePlanePullRequests(
+          this.apiBaseUri,
+          repository.slug,
+        )
 
         if (response.data.data) {
           this.repositoryPullRequests[repository.slug] = response.data.data
@@ -166,13 +227,16 @@ export default {
       }
       this.show.isLoading = false
     },
-    prepareReleaseTrain: async function () {
+    prepareReleaseTrain: async function() {
       let createdPullRequest = false
 
       this.show.isLoading = true
       for (let repository of this.repositories) {
         try {
-          await this.createReleaseTrainPullRequest(this.apiBaseUri, repository.slug)
+          await this.createReleaseTrainPullRequest(
+            this.apiBaseUri,
+            repository.slug,
+          )
           createdPullRequest = true
         } catch (err) {
           // Just ignore if the PR could not be created.
@@ -183,19 +247,25 @@ export default {
       if (!createdPullRequest) {
         this.showPrepareReleasePlane()
         this.show.isLoading = false
-        return;
+        return
       }
 
       await this.checkForPullRequests()
       this.show.isLoading = false
     },
-    deployReleaseTrain: function () {
+    deployReleaseTrain: function() {
       this.show.isLoading = true
       const promises = []
 
       for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
-        for (let i=0; i < this.repositoryPullRequests[repoSlug].length; i++) {
-          promises.push(this.deployReleaseTrainPullRequest(this.apiBaseUri, repoSlug, this.repositoryPullRequests[repoSlug][i].id))
+        for (let i = 0; i < this.repositoryPullRequests[repoSlug].length; i++) {
+          promises.push(
+            this.deployReleaseTrainPullRequest(
+              this.apiBaseUri,
+              repoSlug,
+              this.repositoryPullRequests[repoSlug][i].id,
+            ),
+          )
         }
       }
 
@@ -204,11 +274,14 @@ export default {
         this.show.isLoading = false
       })
     },
-    prepareReleasePlane: async function () {
+    prepareReleasePlane: async function() {
       this.show.isLoading = true
       for (let repository of this.repositories) {
         try {
-          await this.createReleasePlanePullRequest(this.apiBaseUri, repository.slug)
+          await this.createReleasePlanePullRequest(
+            this.apiBaseUri,
+            repository.slug,
+          )
         } catch (err) {
           // Just ignore if the PR could not be created.
           // TODO: Read the payload and check that it failed because there were no changes to be pulled
@@ -218,13 +291,19 @@ export default {
       await this.checkForReleasePlanePullRequests()
       this.show.isLoading = false
     },
-    deployReleasePlane: function () {
+    deployReleasePlane: function() {
       this.show.isLoading = true
       const promises = []
 
       for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
-        for (let i=0; i < this.repositoryPullRequests[repoSlug].length; i++) {
-          promises.push(this.deployReleasePlanePullRequest(this.apiBaseUri, repoSlug, this.repositoryPullRequests[repoSlug][i].id))
+        for (let i = 0; i < this.repositoryPullRequests[repoSlug].length; i++) {
+          promises.push(
+            this.deployReleasePlanePullRequest(
+              this.apiBaseUri,
+              repoSlug,
+              this.repositoryPullRequests[repoSlug][i].id,
+            ),
+          )
         }
       }
 
@@ -233,27 +312,27 @@ export default {
         this.show.isLoading = false
       })
     },
-    hideAll: function () {
+    hideAll: function() {
       for (let componentName of Object.keys(this.show)) {
         this.show[componentName] = false
       }
     },
-    showPrepareReleaseTrain: function () {
+    showPrepareReleaseTrain: function() {
       this.hideAll()
       this.show.PrepareReleaseTrain = true
     },
-    showDeployReleaseTrain: function () {
+    showDeployReleaseTrain: function() {
       this.hideAll()
       this.show.DeployReleaseTrain = true
     },
-    showPrepareReleasePlane: function () {
+    showPrepareReleasePlane: function() {
       this.hideAll()
       this.show.PrepareReleasePlane = true
     },
-    showDeployReleasePlane: function () {
+    showDeployReleasePlane: function() {
       this.hideAll()
       this.show.DeployReleasePlane = true
     },
-  }
+  },
 }
 </script>
