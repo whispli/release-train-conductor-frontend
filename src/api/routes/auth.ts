@@ -1,21 +1,21 @@
-import { ResponseBody } from '@/api/types'
 import axios from 'axios'
 import routes from '@/api/routes'
 
-export type LoginResponse = ResponseBody<LoginData>
-export type LogoutResponse = ResponseBody<LogoutData>
-
 export interface LoginData {
-  data: Record<string, any>;
+  data: {
+    message: string,
+    token: string,
+    type: string,
+  };
 }
 
 export interface LogoutData {
   ok: string;
 }
 
-export const login = async (input: Record<string, any>): Promise<LoginResponse> => {
+export const login = async (input: Record<string, any>): Promise<LoginData> => {
   try {
-    const response = await axios.request(
+    const response = await axios.request<LoginData>(
       {
         url: routes.login.path,
         method: routes.login.method,
@@ -32,9 +32,9 @@ export const login = async (input: Record<string, any>): Promise<LoginResponse> 
   }
 }
 
-export const logout = async (): Promise<LogoutResponse> => {
+export const logout = async (): Promise<LogoutData> => {
   try {
-    const response = await axios(
+    const response = await axios.request<LogoutData>(
       {
         url: routes.logout.path,
         method: routes.logout.method,

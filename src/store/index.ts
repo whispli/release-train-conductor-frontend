@@ -7,8 +7,8 @@ import { RootState } from './types'
 
 const state = (): RootState => ({
   user: {
-    email: null,
-    jwt: null,
+    email: '',
+    token: '',
   },
 })
 

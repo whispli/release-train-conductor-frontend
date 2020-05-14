@@ -1,25 +1,45 @@
-import { ResponseBody } from '@/api/types'
 import axios from 'axios'
 import routes from '@/api/routes'
 
-export type ReleaseTrainPullRequestsResponse = ResponseBody<ArrayData>
-export type ReleaseTrainPullRequestResponse = ResponseBody<Data>
-
 export interface ArrayData {
-  data: Array<Record<string, any>>;
+  data: ReleaseTrainPullRequest[]
 }
 
 export interface Data {
-  data: Record<string, any>;
+  data: ReleaseTrainPullRequest
+}
+
+interface ReleaseTrainPullRequest {
+  author: Record<string, any>
+  close_source_branch: boolean
+  closed_by: Record<string, any> | null
+  comment_count: number
+  created_on: string
+  description: string
+  destination: Record<string, any>
+  id: number
+  links: Record<string, any>
+  merge_commit: any
+  reason: string
+  source: Record<string, any>
+  state: string
+  summary: Record<string, any>
+  task_count: number
+  title: string
+  type: string
+  updated_on: string
 }
 
 export const getReleaseTrainPullRequests =
-  async (repoSlug: string): Promise<ReleaseTrainPullRequestsResponse> => {
+  async (jwt: string, repoSlug: string): Promise<ArrayData> => {
   try {
-    const response = await axios.request(
+    const response = await axios.request<ArrayData>(
       {
         url: routes.getReleaseTrainPullRequests.path(repoSlug),
         method: routes.getReleaseTrainPullRequests.method,
+        headers: {
+          Authorization: 'Bearer ' + jwt,
+        },
       },
     )
 
@@ -29,13 +49,15 @@ export const getReleaseTrainPullRequests =
   }
 }
 
-export const createReleaseTrainPullRequest =
-  async (repoSlug: string): Promise<ReleaseTrainPullRequestResponse> => {
+export const createReleaseTrainPullRequest = async (jwt: string, repoSlug: string): Promise<Data> => {
   try {
-    const response = await axios.request(
+    const response = await axios.request<Data>(
       {
         url: routes.createReleaseTrainPullRequest.path(repoSlug),
         method: routes.getRepositories.method,
+        headers: {
+          Authorization: 'Bearer ' + jwt,
+        },
       },
     )
 
@@ -46,12 +68,15 @@ export const createReleaseTrainPullRequest =
 }
 
 export const deployReleaseTrainPullRequest =
-  async (repoSlug: string, pullRequestId: string): Promise<ReleaseTrainPullRequestResponse> => {
+  async (jwt: string, repoSlug: string, pullRequestId: string): Promise<Data> => {
   try {
-    const response = await axios.request(
+    const response = await axios.request<Data>(
       {
         url: routes.deployReleaseTrainPullRequest.path(repoSlug, pullRequestId),
         method: routes.getRepositories.method,
+        headers: {
+          Authorization: 'Bearer ' + jwt,
+        },
       },
     )
 
