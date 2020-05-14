@@ -5,15 +5,15 @@ import routes from '@/api/routes'
 export type RepositoryResponse = ResponseBody<Data>
 
 export interface Data {
-  data: Record<string, any>;
+  data: Array<Record<string, any>>;
 }
 
 export const getRepositories = async (): Promise<RepositoryResponse> => {
   try {
     const response = await axios.request(
       {
-        url: routes.login.path,
-        method: routes.login.method,
+        url: routes.getRepositories.path,
+        method: routes.getRepositories.method,
       },
     )
 

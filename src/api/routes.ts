@@ -36,7 +36,7 @@ const getReleaseTrainPullRequests: RouteWithParams = {
   method: 'GET',
   path: (repoSlug: string) => {
     return toPath(`/repositories/${repoSlug}/release-train-pull-requests`)
-  }
+  },
 }
 
 /**
@@ -80,7 +80,7 @@ const createReleasePlanePullRequest: RouteWithParams = {
   method: 'POST',
   path: (repoSlug: string) => {
     return toPath(`/repositories/${repoSlug}/release-plane-pull-requests`)
-  }
+  },
 }
 
 /**

@@ -8,6 +8,6 @@ export interface Route {
 
 export interface RouteWithParams<T extends Function = (...args: any[]) => string> {
   type: string;
-  method: string;
+  method: Method;
   path: T;
 }
