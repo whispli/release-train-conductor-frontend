@@ -8,6 +8,10 @@
   </VApp>
 </template>
 
-<script>
-export default { name: 'AppContainer' }
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+
+@Component({ })
+export default class AppContainer extends Vue {
+}
 </script>
