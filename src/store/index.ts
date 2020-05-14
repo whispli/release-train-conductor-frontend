@@ -6,7 +6,10 @@ import { resetMixin } from '@/store/utils'
 import { RootState } from './types'
 
 const state = (): RootState => ({
-  user: {},
+  user: {
+    email: null,
+    jwt: null,
+  },
 })
 
 export const mutations: MutationTree<RootState> = {
