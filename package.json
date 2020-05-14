@@ -13,29 +13,27 @@
     "core-js": "3.6.5",
     "express": "4.17.1",
     "vue": "2.6.11",
+    "vue-class-component": "^7.2.3",
     "vue-loading-overlay": "3.3.2",
-    "vuetify": "2.2.28"
+    "vue-property-decorator": "^8.4.2",
+    "vue-router": "^3.1.6",
+    "vuetify": "2.2.28",
+    "vuex": "^3.4.0",
+    "vuex-class": "^0.3.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "3.11.0",
-    "@vue/cli-plugin-eslint": "3.11.0",
-    "@vue/cli-service": "3.11.0",
+    "@babel/plugin-proposal-optional-chaining": "7.9.0",
+    "@vue/cli-plugin-babel": "4.3.1",
+    "@vue/cli-plugin-eslint": "4.3.1",
+    "@vue/cli-service": "4.3.1",
     "babel-eslint": "10.1.0",
     "eslint": "6.8.0",
     "eslint-plugin-vue": "6.2.2",
-    "sass": "1.17.4",
-    "sass-loader": "7.1.0",
-    "vue-cli-plugin-vuetify": "0.6.3",
+    "sass": "1.23.7",
+    "sass-loader": "8.0.2",
+    "typescript": "3.9.2",
+    "vue-cli-plugin-vuetify": "2.0.5",
     "vue-template-compiler": "2.6.11",
-    "vuetify-loader": "1.2.2"
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions"
-  ]
+    "vuetify-loader": "1.4.3"
+  }
 }

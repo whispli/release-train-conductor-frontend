@@ -22,12 +22,7 @@
           <VBtn
             color="green darken-1"
             text
-            @click="
-              () => {
-                this.show.deployReleaseTrainConfirmationDialog = false;
-                deployReleaseTrain();
-              }
-            ">
+            @click="deployReleaseTrain">
             Yes
           </VBtn>
         </VCardActions>
@@ -35,7 +30,7 @@
     </VDialog>
     <VContent>
       <VContainer
-        v-if="show.PrepareReleaseTrain"
+        v-if="show.prepareReleaseTrain"
         class="fill-height"
         fluid>
         <VRow>
@@ -52,7 +47,7 @@
         </VRow>
       </VContainer>
       <VContainer
-        v-if="show.DeployReleaseTrain"
+        v-if="show.deployReleaseTrain"
         class="fill-height"
         fluid>
         <VRow>
@@ -69,7 +64,7 @@
         </VRow>
       </VContainer>
       <VContainer
-        v-if="show.PrepareReleasePlane"
+        v-if="show.prepareReleasePlane"
         class="fill-height"
         fluid>
         <VRow>
@@ -86,7 +81,7 @@
         </VRow>
       </VContainer>
       <VContainer
-        v-if="show.DeployReleasePlane"
+        v-if="show.deployReleasePlane"
         class="fill-height"
         fluid>
         <VRow>
@@ -112,25 +107,22 @@ import Loading from 'vue-loading-overlay'
 import 'vue-loading-overlay/dist/vue-loading.css'
 
 export default {
-  name: 'App',
+  name: 'Deploy',
   components: { Loading },
   data: () => ({
     show: {
-      PrepareReleaseTrain: true,
-      DeployReleaseTrain: false,
-      PrepareReleasePlane: false,
-      DeployReleasePlane: false,
+      prepareReleaseTrain: true,
+      deployReleaseTrain: false,
+      prepareReleasePlane: false,
+      deployReleasePlane: false,
       DeployToOverseasTerminals: false,
       isLoading: false,
       deployReleaseTrainConfirmationDialog: false,
     },
-    apiBaseUri: 'https://whispli-deployment-button.herokuapp.com/api/v1',
+    apiBaseUri: 'http://127.0.0.1:3333/api/v1',
     repositories: [],
     repositoryPullRequests: {},
   }),
-  created() {
-    this.$vuetify.theme.dark = true
-  },
   async mounted() {
     this.show.isLoading = true
     const response = await this.getRepositories(this.apiBaseUri)
@@ -139,50 +131,50 @@ export default {
     this.checkForPullRequests()
   },
   methods: {
-    getRepositories: async apiBaseUri => {
+    async getRepositories (apiBaseUri) {
       return axios.get(apiBaseUri + '/repositories')
     },
-    getReleaseTrainPullRequests: async (apiBaseUri, repoSlug) => {
+    async getReleaseTrainPullRequests (apiBaseUri, repoSlug) {
       return axios.get(
         apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`,
       )
     },
-    createReleaseTrainPullRequest: async (apiBaseUri, repoSlug) => {
+    async createReleaseTrainPullRequest (apiBaseUri, repoSlug) {
       return axios.post(
         apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`,
       )
     },
-    deployReleaseTrainPullRequest: async (
+    async deployReleaseTrainPullRequest (
       apiBaseUri,
       repoSlug,
       pullRequestId,
-    ) => {
+    ) {
       return axios.patch(
         apiBaseUri +
           `/repositories/${repoSlug}/release-train-pull-requests/${pullRequestId}`,
       )
     },
-    getReleasePlanePullRequests: async (apiBaseUri, repoSlug) => {
+    async getReleasePlanePullRequests (apiBaseUri, repoSlug) {
       return axios.get(
         apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`,
       )
     },
-    createReleasePlanePullRequest: async (apiBaseUri, repoSlug) => {
+    async createReleasePlanePullRequest (apiBaseUri, repoSlug) {
       return axios.post(
         apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`,
       )
     },
-    deployReleasePlanePullRequest: async (
+    async deployReleasePlanePullRequest (
       apiBaseUri,
       repoSlug,
       pullRequestId,
-    ) => {
+    ) {
       return axios.patch(
         apiBaseUri +
           `/repositories/${repoSlug}/release-plane-pull-requests/${pullRequestId}`,
       )
     },
-    checkForPullRequests: async function() {
+    async checkForPullRequests() {
       this.show.isLoading = true
       for (let repository of this.repositories) {
         const response = await this.getReleaseTrainPullRequests(
@@ -205,7 +197,7 @@ export default {
       }
       this.show.isLoading = false
     },
-    checkForReleasePlanePullRequests: async function() {
+    async checkForReleasePlanePullRequests() {
       this.show.isLoading = true
       for (let repository of this.repositories) {
         const response = await this.getReleasePlanePullRequests(
@@ -227,7 +219,7 @@ export default {
       }
       this.show.isLoading = false
     },
-    prepareReleaseTrain: async function() {
+    async prepareReleaseTrain() {
       let createdPullRequest = false
 
       this.show.isLoading = true
@@ -253,7 +245,8 @@ export default {
       await this.checkForPullRequests()
       this.show.isLoading = false
     },
-    deployReleaseTrain: function() {
+    deployReleaseTrain() {
+      this.show.deployReleaseTrainConfirmationDialog = false
       this.show.isLoading = true
       const promises = []
 
@@ -274,7 +267,7 @@ export default {
         this.show.isLoading = false
       })
     },
-    prepareReleasePlane: async function() {
+    async prepareReleasePlane() {
       this.show.isLoading = true
       for (let repository of this.repositories) {
         try {
@@ -312,26 +305,26 @@ export default {
         this.show.isLoading = false
       })
     },
-    hideAll: function() {
+    hideAll() {
       for (let componentName of Object.keys(this.show)) {
         this.show[componentName] = false
       }
     },
-    showPrepareReleaseTrain: function() {
+    showPrepareReleaseTrain() {
       this.hideAll()
-      this.show.PrepareReleaseTrain = true
+      this.show.prepareReleaseTrain = true
     },
-    showDeployReleaseTrain: function() {
+    showDeployReleaseTrain() {
       this.hideAll()
-      this.show.DeployReleaseTrain = true
+      this.show.deployReleaseTrain = true
     },
-    showPrepareReleasePlane: function() {
+    showPrepareReleasePlane() {
       this.hideAll()
-      this.show.PrepareReleasePlane = true
+      this.show.prepareReleasePlane = true
     },
-    showDeployReleasePlane: function() {
+    showDeployReleasePlane() {
       this.hideAll()
-      this.show.DeployReleasePlane = true
+      this.show.deployReleasePlane = true
     },
   },
 }
