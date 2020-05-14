@@ -55,7 +55,7 @@ export const createReleasePlanePullRequest =
     const response = await axios.request(
       {
         url: routes.createReleasePlanePullRequest.path(repoSlug),
-        method: routes.getRepositories.method,
+        method: routes.createReleasePlanePullRequest.method,
         headers: {
           Authorization: 'Bearer ' + jwt,
         },
@@ -74,7 +74,7 @@ export const deployReleasePlanePullRequest =
     const response = await axios.request(
       {
         url: routes.deployReleasePlanePullRequest.path(repoSlug, pullRequestId),
-        method: routes.getRepositories.method,
+        method: routes.deployReleasePlanePullRequest.method,
         headers: {
           Authorization: 'Bearer ' + jwt,
         },

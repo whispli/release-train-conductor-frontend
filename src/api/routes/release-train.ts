@@ -54,7 +54,7 @@ export const createReleaseTrainPullRequest = async (jwt: string, repoSlug: strin
     const response = await axios.request<Data>(
       {
         url: routes.createReleaseTrainPullRequest.path(repoSlug),
-        method: routes.getRepositories.method,
+        method: routes.createReleaseTrainPullRequest.method,
         headers: {
           Authorization: 'Bearer ' + jwt,
         },
@@ -73,7 +73,7 @@ export const deployReleaseTrainPullRequest =
     const response = await axios.request<Data>(
       {
         url: routes.deployReleaseTrainPullRequest.path(repoSlug, pullRequestId),
-        method: routes.getRepositories.method,
+        method: routes.deployReleaseTrainPullRequest.method,
         headers: {
           Authorization: 'Bearer ' + jwt,
         },

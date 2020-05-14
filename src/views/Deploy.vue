@@ -1,6 +1,5 @@
 <template>
   <VApp>
-    <Loading :active.sync="show.isLoading" :can-cancel="false" />
     <VDialog
       v-model="show.deployReleaseTrainConfirmationDialog"
       max-width="290">
@@ -101,231 +100,208 @@
   </VApp>
 </template>
 
-<script>
-import axios from 'axios'
-import Loading from 'vue-loading-overlay'
-import 'vue-loading-overlay/dist/vue-loading.css'
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import { State } from 'vuex-class'
 
-export default {
-  name: 'Deploy',
-  components: { Loading },
-  data: () => ({
-    show: {
-      prepareReleaseTrain: true,
-      deployReleaseTrain: false,
-      prepareReleasePlane: false,
-      deployReleasePlane: false,
-      DeployToOverseasTerminals: false,
-      isLoading: false,
-      deployReleaseTrainConfirmationDialog: false,
-    },
-    apiBaseUri: 'http://127.0.0.1:3333/api/v1',
-    repositories: [],
-    repositoryPullRequests: {},
-  }),
-  async mounted() {
+import { getRepositories } from '@/api/routes/repository'
+import {
+  getReleaseTrainPullRequests,
+  createReleaseTrainPullRequest,
+  deployReleaseTrainPullRequest,
+} from '@/api/routes/release-train'
+import {
+  getReleasePlanePullRequests,
+  createReleasePlanePullRequest,
+  deployReleasePlanePullRequest,
+} from '@/api/routes/release-plane'
+import { User } from '@/types'
+
+@Component({ })
+export default class Deploy extends Vue {
+  @State private readonly user!: User
+
+private repositories: any[] = []
+  private repositoryPullRequests: Record<string, any> = {}
+  private show: Record<string, boolean> = {
+    prepareReleaseTrain: true,
+    deployReleaseTrain: false,
+    prepareReleasePlane: false,
+    deployReleasePlane: false,
+    DeployToOverseasTerminals: false,
+    isLoading: false,
+    deployReleaseTrainConfirmationDialog: false,
+  }
+
+  private async mounted() {
     this.show.isLoading = true
-    const response = await this.getRepositories(this.apiBaseUri)
-    this.repositories = response.data.data
+    const response = await getRepositories(this.user.token)
+    this.repositories = response.data
 
     this.checkForPullRequests()
-  },
-  methods: {
-    async getRepositories (apiBaseUri) {
-      return axios.get(apiBaseUri + '/repositories')
-    },
-    async getReleaseTrainPullRequests (apiBaseUri, repoSlug) {
-      return axios.get(
-        apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`,
-      )
-    },
-    async createReleaseTrainPullRequest (apiBaseUri, repoSlug) {
-      return axios.post(
-        apiBaseUri + `/repositories/${repoSlug}/release-train-pull-requests`,
-      )
-    },
-    async deployReleaseTrainPullRequest (
-      apiBaseUri,
-      repoSlug,
-      pullRequestId,
-    ) {
-      return axios.patch(
-        apiBaseUri +
-          `/repositories/${repoSlug}/release-train-pull-requests/${pullRequestId}`,
-      )
-    },
-    async getReleasePlanePullRequests (apiBaseUri, repoSlug) {
-      return axios.get(
-        apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`,
-      )
-    },
-    async createReleasePlanePullRequest (apiBaseUri, repoSlug) {
-      return axios.post(
-        apiBaseUri + `/repositories/${repoSlug}/release-plane-pull-requests`,
-      )
-    },
-    async deployReleasePlanePullRequest (
-      apiBaseUri,
-      repoSlug,
-      pullRequestId,
-    ) {
-      return axios.patch(
-        apiBaseUri +
-          `/repositories/${repoSlug}/release-plane-pull-requests/${pullRequestId}`,
-      )
-    },
-    async checkForPullRequests() {
-      this.show.isLoading = true
-      for (let repository of this.repositories) {
-        const response = await this.getReleaseTrainPullRequests(
-          this.apiBaseUri,
-          repository.slug,
-        )
+  }
 
-        if (response.data.data) {
-          this.repositoryPullRequests[repository.slug] = response.data.data
-        } else {
-          delete this.repositoryPullRequests[repository.slug]
-        }
-      }
+  private async checkForPullRequests() {
+    this.show.isLoading = true
+    for (let repository of this.repositories) {
+      const response = await getReleaseTrainPullRequests(
+        this.user.token,
+        repository.slug,
+      )
 
-      if (Object.keys(this.repositoryPullRequests).length > 0) {
-        this.showDeployReleaseTrain()
+      if (response.data) {
+        this.repositoryPullRequests[repository.slug] = response.data
       } else {
-        this.showPrepareReleaseTrain()
-        await this.checkForReleasePlanePullRequests()
+        delete this.repositoryPullRequests[repository.slug]
       }
-      this.show.isLoading = false
-    },
-    async checkForReleasePlanePullRequests() {
-      this.show.isLoading = true
-      for (let repository of this.repositories) {
-        const response = await this.getReleasePlanePullRequests(
-          this.apiBaseUri,
-          repository.slug,
-        )
+    }
 
-        if (response.data.data) {
-          this.repositoryPullRequests[repository.slug] = response.data.data
-        } else {
-          delete this.repositoryPullRequests[repository.slug]
-        }
-      }
-
-      if (Object.keys(this.repositoryPullRequests).length > 0) {
-        this.showDeployReleasePlane()
-      } else {
-        this.showPrepareReleaseTrain()
-      }
-      this.show.isLoading = false
-    },
-    async prepareReleaseTrain() {
-      let createdPullRequest = false
-
-      this.show.isLoading = true
-      for (let repository of this.repositories) {
-        try {
-          await this.createReleaseTrainPullRequest(
-            this.apiBaseUri,
-            repository.slug,
-          )
-          createdPullRequest = true
-        } catch (err) {
-          // Just ignore if the PR could not be created.
-          // TODO: Read the payload and check that it failed because there were no changes to be pulled
-        }
-      }
-
-      if (!createdPullRequest) {
-        this.showPrepareReleasePlane()
-        this.show.isLoading = false
-        return
-      }
-
-      await this.checkForPullRequests()
-      this.show.isLoading = false
-    },
-    deployReleaseTrain() {
-      this.show.deployReleaseTrainConfirmationDialog = false
-      this.show.isLoading = true
-      const promises = []
-
-      for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
-        for (let i = 0; i < this.repositoryPullRequests[repoSlug].length; i++) {
-          promises.push(
-            this.deployReleaseTrainPullRequest(
-              this.apiBaseUri,
-              repoSlug,
-              this.repositoryPullRequests[repoSlug][i].id,
-            ),
-          )
-        }
-      }
-
-      Promise.all(promises).then(() => {
-        this.showPrepareReleaseTrain()
-        this.show.isLoading = false
-      })
-    },
-    async prepareReleasePlane() {
-      this.show.isLoading = true
-      for (let repository of this.repositories) {
-        try {
-          await this.createReleasePlanePullRequest(
-            this.apiBaseUri,
-            repository.slug,
-          )
-        } catch (err) {
-          // Just ignore if the PR could not be created.
-          // TODO: Read the payload and check that it failed because there were no changes to be pulled
-        }
-      }
-
+    if (Object.keys(this.repositoryPullRequests).length > 0) {
+      this.showDeployReleaseTrain()
+    } else {
+      this.showPrepareReleaseTrain()
       await this.checkForReleasePlanePullRequests()
+    }
+    this.show.isLoading = false
+  }
+
+  private async checkForReleasePlanePullRequests() {
+    this.show.isLoading = true
+    for (let repository of this.repositories) {
+      const response = await getReleasePlanePullRequests(
+        this.user.token,
+        repository.slug,
+      )
+
+      if (response.data) {
+        this.repositoryPullRequests[repository.slug] = response.data
+      } else {
+        delete this.repositoryPullRequests[repository.slug]
+      }
+    }
+
+    if (Object.keys(this.repositoryPullRequests).length > 0) {
+      this.showDeployReleasePlane()
+    } else {
+      this.showPrepareReleaseTrain()
+    }
+    this.show.isLoading = false
+  }
+
+  private async prepareReleaseTrain() {
+    let createdPullRequest = false
+
+    this.show.isLoading = true
+    for (let repository of this.repositories) {
+      try {
+        await createReleaseTrainPullRequest(
+          this.user.token,
+          repository.slug,
+        )
+        createdPullRequest = true
+      } catch (err) {
+        // Just ignore if the PR could not be created.
+        // TODO: Read the payload and check that it failed because there were no changes to be pulled
+      }
+    }
+
+    if (!createdPullRequest) {
+      this.showPrepareReleasePlane()
       this.show.isLoading = false
-    },
-    deployReleasePlane: function() {
-      this.show.isLoading = true
-      const promises = []
+      return
+    }
 
-      for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
-        for (let i = 0; i < this.repositoryPullRequests[repoSlug].length; i++) {
-          promises.push(
-            this.deployReleasePlanePullRequest(
-              this.apiBaseUri,
-              repoSlug,
-              this.repositoryPullRequests[repoSlug][i].id,
-            ),
-          )
-        }
-      }
+    await this.checkForPullRequests()
+    this.show.isLoading = false
+  }
 
-      Promise.all(promises).then(() => {
-        this.showPrepareReleaseTrain()
-        this.show.isLoading = false
-      })
-    },
-    hideAll() {
-      for (let componentName of Object.keys(this.show)) {
-        this.show[componentName] = false
+  private deployReleaseTrain() {
+    this.show.deployReleaseTrainConfirmationDialog = false
+    this.show.isLoading = true
+    const promises = []
+
+    for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
+      for (let i = 0; i < this.repositoryPullRequests[repoSlug].length; i++) {
+        promises.push(
+          deployReleaseTrainPullRequest(
+            this.user.token,
+            repoSlug,
+            this.repositoryPullRequests[repoSlug][i].id,
+          ),
+        )
       }
-    },
-    showPrepareReleaseTrain() {
-      this.hideAll()
-      this.show.prepareReleaseTrain = true
-    },
-    showDeployReleaseTrain() {
-      this.hideAll()
-      this.show.deployReleaseTrain = true
-    },
-    showPrepareReleasePlane() {
-      this.hideAll()
-      this.show.prepareReleasePlane = true
-    },
-    showDeployReleasePlane() {
-      this.hideAll()
-      this.show.deployReleasePlane = true
-    },
-  },
+    }
+
+    Promise.all(promises).then(() => {
+      this.showPrepareReleaseTrain()
+      this.show.isLoading = false
+    })
+  }
+
+  private async prepareReleasePlane() {
+    this.show.isLoading = true
+    for (let repository of this.repositories) {
+      try {
+        await createReleasePlanePullRequest(
+          this.user.token,
+          repository.slug,
+        )
+      } catch (err) {
+        // Just ignore if the PR could not be created.
+        // TODO: Read the payload and check that it failed because there were no changes to be pulled
+      }
+    }
+
+    await this.checkForReleasePlanePullRequests()
+    this.show.isLoading = false
+  }
+
+  private deployReleasePlane() {
+    this.show.isLoading = true
+    const promises = []
+
+    for (let repoSlug of Object.keys(this.repositoryPullRequests)) {
+      for (let i = 0; i < this.repositoryPullRequests[repoSlug].length; i++) {
+        promises.push(
+          deployReleasePlanePullRequest(
+            this.user.token,
+            repoSlug,
+            this.repositoryPullRequests[repoSlug][i].id,
+          ),
+        )
+      }
+    }
+
+    Promise.all(promises).then(() => {
+      this.showPrepareReleaseTrain()
+      this.show.isLoading = false
+    })
+  }
+
+  private hideAll() {
+    for (let componentName of Object.keys(this.show)) {
+      this.show[componentName] = false
+    }
+  }
+
+  private showPrepareReleaseTrain() {
+    this.hideAll()
+    this.show.prepareReleaseTrain = true
+  }
+
+  private showDeployReleaseTrain() {
+    this.hideAll()
+    this.show.deployReleaseTrain = true
+  }
+
+  private showPrepareReleasePlane() {
+    this.hideAll()
+    this.show.prepareReleasePlane = true
+  }
+
+  private showDeployReleasePlane() {
+    this.hideAll()
+    this.show.deployReleasePlane = true
+  }
 }
 </script>
