@@ -1,3 +1,5 @@
+const ENV = process.env
+
 module.exports = {
   transpileDependencies: [ 'vuetify' ],
   lintOnSave: false,
@@ -11,6 +13,7 @@ module.exports = {
 
     config.plugins.delete('prefetch')
   },
+  devServer: { proxy: { '^/api': { target: ENV.VUE_APP_API_URL } } },
   css: {
     loaderOptions: {
       scss: {
