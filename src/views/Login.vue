@@ -66,8 +66,9 @@ export default class Login extends Vue {
     this.isPending = true
 
     try {
-      const jwt = await login({ email: this.email, password: this.password })
-      this.$store.dispatch('setUser', { email: this.email, jwt })
+      const { data } = await login({ email: this.email, password: this.password })
+      const token = data.token
+      this.$store.dispatch('setUser', { email: this.email, token })
       this.$router.push('deploy')
     } catch (err) {
       return
