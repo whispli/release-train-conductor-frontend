@@ -21,6 +21,8 @@
           <VBtn
             color="green darken-1"
             text
+            :disabled="isLoading"
+            :loading="isLoading"
             @click="deployReleaseTrain">
             Yes
           </VBtn>
@@ -38,6 +40,8 @@
               <VBtn
                 color="warning"
                 x-large
+                :disabled="isLoading"
+                :loading="isLoading"
                 @click="prepareReleaseTrain">
                 Prepare Release Train
               </VBtn>
@@ -55,6 +59,8 @@
               <VBtn
                 color="error"
                 x-large
+                :disabled="isLoading"
+                :loading="isLoading"
                 @click="show.deployReleaseTrainConfirmationDialog = true">
                 Deploy Release Train
               </VBtn>
@@ -72,6 +78,8 @@
               <VBtn
                 color="success"
                 x-large
+                :disabled="isLoading"
+                :loading="isLoading"
                 @click="prepareReleasePlane">
                 Prepare Release Plane
               </VBtn>
@@ -89,6 +97,8 @@
               <VBtn
                 color="info"
                 x-large
+                :disabled="isLoading"
+                :loading="isLoading"
                 @click="deployReleasePlane">
                 Deploy Release Plane
               </VBtn>
