@@ -6,7 +6,7 @@
   },
   "proxies": {
     "/api": {
-      "origin": "https://whispli-rtc-api.herokuapp.com/api"
+      "origin": "${VUE_APP_API_PROTOCOL}${VUE_APP_API_HOST}:${VUE_APP_API_PORT}/api"
     }
   }
 }
