@@ -4,7 +4,12 @@ module.exports = {
     browser: true,
     node: true,
   },
-  parserOptions: { parser: 'babel-eslint' },
+  parserOptions: {
+    parser: 'babel-eslint',
+    ecmaFeatures: {
+      "legacyDecorators": true
+    }
+  },
   extends: [
     'eslint:recommended',
     'plugin:vue/recommended',
